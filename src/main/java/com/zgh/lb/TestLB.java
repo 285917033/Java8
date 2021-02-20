@@ -3,12 +3,11 @@ package com.zgh.lb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntBinaryOperator;
 import java.util.function.Predicate;
-import java.util.function.ToIntBiFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.Supplier;
 
 /**
  * <Description> <br>
@@ -22,6 +21,11 @@ import java.util.function.ToIntFunction;
  *   行为参数化
  *  行为参数化简单来说就是将一个代码块准备好却不马上执行，这部分代码可以作为参数传递给另一个方法，这意味着我们可以推迟这部分代码的执行。
  *  行为参数化是处理频繁的需求变更的一种良好的开发模式
+ *
+ *
+ *  但是实际上 Java 编译器会为匿名类生成一个 ClassName$1 这种形式的类文件。生成大量的类文件是不利的，
+ *  因为每个类文件在使用时都需要加载和验证，这会影响应用的启动性能。
+ *  在 Java 8 中，我们可以使用 Lambda 表达式来解决这个问题
  *
  *  一，语法
  *
@@ -86,6 +90,33 @@ import java.util.function.ToIntFunction;
 public class TestLB {
 
     public static void main(String[] args) {
+
+        //Supplier<Apple> s = Apple :: new ;
+
+        Supplier<Apple> s = () -> new Apple();
+        Apple  a  = s.get();
+
+
+        Function<String, Apple> s2 = Apple :: new; // 指向 Apple(String color) 的构造函数引用
+        Apple  a2  = s2.apply("red");  // 调用该 Function 接口的 apply 方法，并给出要求的color，产生一个新的对象
+
+
+        // 与上面相等
+//        Function<String, Apple> s2 = (String color) -> new Apple(color);
+//        Apple  a2  = s2.apply("red");
+
+
+
+//        如果构造函数的签名为 Apple(String color, Integer weight)，那么就与 BiFunction 接口的签名 (T, U, R) -> R 一致。
+//
+//        java.util.function.BiFunction<String, Integer, Apple> f1 = Apple::new;
+//        Apple a1 = f1.apply("red", 120);
+//
+//// 等价于
+//        BiFunction<String, Integer, Apple> f2 = (String color, Integer weight) -> new Apple(color, weight);
+//        Apple a2 = f2.apply("red", 120);
+
+
         Runnable task = () -> System.out.println(Thread.currentThread());
 
         Thread thread = new Thread(task, "thread0");
